@@ -1,84 +1,120 @@
-#include <stdlib.h>
 #include <stdio.h>
-
+#include <stdlib.h>
 #include "sandpiles.h"
 
 /**
- * print_grid_sum - Print 3x3 grids sum
- * @grid1: Left 3x3 grid
- * @grid2: Right 3x3 grid
- *
+ * alt_print_grid - function to print the grid for holbertonschool
+ * @grid1: grid 1
  */
-static void print_grid_sum(int grid1[3][3], int grid2[3][3])
+void alt_print_grid(int grid1[3][3])
 {
-    int i, j;
+	int i, j;
 
-    for (i = 0; i < 3; i++)
-    {
-        for (j = 0; j < 3; j++)
-        {
-            if (j)
-                printf(" ");
-            printf("%d", grid1[i][j]);
-        }
-
-        printf(" %c ", (i == 1 ? '+' : ' '));
-
-        for (j = 0; j < 3; j++)
-        {
-            if (j)
-                printf(" ");
-            printf("%d", grid2[i][j]);
-        }
-        printf("\n");
-    }
+	printf("=\n");
+	for (i = 0; i < 3; i++)
+	{
+		for (j = 0; j < 3; j++)
+		{
+			if (j)
+				printf(" ");
+			printf("%d", grid1[i][j]);
+		}
+		printf("\n");
+	}
 }
 
 /**
- * print_grid - Print 3x3 grid
- * @grid: 3x3 grid
- *
+ * sandpiles_sum - sum of 2 sandpiles
+ * @grid1: grid 2
+ * @grid2: grid 2
  */
-static void print_grid(int grid[3][3])
+void sandpiles_sum(int grid1[3][3], int grid2[3][3])
 {
-    int i, j;
-
-    for (i = 0; i < 3; i++)
-    {
-        for (j = 0; j < 3; j++)
-        {
-            if (j)
-                printf(" ");
-            printf("%d", grid[i][j]);
-        }
-        printf("\n");
-    }
+	add_grids(grid1, grid2);
+	if (!is_stable(grid1))
+		alt_print_grid(grid1);
+	while (!is_stable(grid1))
+	{
+		topple(grid1);
+		if (!is_stable(grid1))
+			alt_print_grid(grid1);
+	}
 }
 
 /**
- * main - Entry point
- *
- * Return: EXIT_SUCCESS or EXIT_FAILURE
+ * is_stable - check if cell biger then 3
+ * @grid1:grid1
+ * Return: return 1
  */
-int main(void)
+int is_stable(int grid1[3][3])
 {
-    int grid1[3][3] = {
-        {0, 0, 0},
-        {0, 0, 0},
-        {0, 0, 0}
-    };
-    int grid2[3][3] = {
-        {3, 3, 3},
-        {3, 3, 3},
-        {3, 3, 3}
-    };
+	int i, j;
 
-    print_grid_sum(grid1, grid2);
+	for (i = 0; i < 3; i++)
+	{
+		for (j = 0; j < 3; j++)
+		{
+			if (grid1[i][j] > 3)
+				return (0);
+		}
+	}
+	return (1);
+}
 
-    sandpiles_sum(grid1, grid2);
+/**
+ * add_grids - adds grids
+ * @grid1: grid1
+ * @grid2: grid2
+ */
+void add_grids(int grid1[3][3], int grid2[3][3])
+{
+	int i, j;
 
-    printf("output=\n");
-    print_grid(grid1);
+	for (i = 0; i < 3; i++)
+	{
+		for (j = 0; j < 3; j++)
+			grid1[i][j] = grid1[i][j] + grid2[i][j];
+	}
+}
 
-    return (EXIT_SUCCESS);
+/**
+ * topple - remove cell
+ * @grid1: grid
+ */
+void topple(int grid1[3][3])
+{
+	int grains[3][3];
+	int i, j;
+
+	for (i = 0; i < 3; i++)
+	{
+		for (j = 0; j < 3; j++)
+		{
+			grains[i][j] = 0;
+		}
+	}
+
+	for (i = 0; i < 3; i++)
+	{
+		for (j = 0; j < 3; j++)
+		{
+			if (grid1[i][j] > 3)
+			{
+
+				if ((i - 1 >= 0) && (i - 1 < 3))
+					grains[i - 1][j]++;
+
+				if ((i + 1 >= 0) && (i + 1 < 3))
+					grains[i + 1][j]++;
+
+				if ((j - 1 >= 0) && (j - 1 < 3))
+					grains[i][j - 1]++;
+
+				if ((j + 1 >= 0) && (j + 1 < 3))
+					grains[i][j + 1]++;
+				grid1[i][j] -= 4;
+			}
+		}
+	}
+	add_grids(grid1, grains);
 }
