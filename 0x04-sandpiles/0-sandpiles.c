@@ -1,52 +1,33 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "sandpiles.h"
-
 /**
- * alt_print_grid - function to print the grid for holbertonschool
- * @grid1: grid 1
- */
-void alt_print_grid(int grid1[3][3])
+  * print_grid - Print 3x3 grid
+  * @grid: 2D array 3*3
+  *
+  */
+
+static void print_grid(int grid[3][3])
 {
 	int i, j;
 
-	printf("=\n");
 	for (i = 0; i < 3; i++)
 	{
 		for (j = 0; j < 3; j++)
 		{
 			if (j)
 				printf(" ");
-			printf("%d", grid1[i][j]);
+			printf("%d", grid[i][j]);
 		}
 		printf("\n");
 	}
 }
 
 /**
- * sandpiles_sum - sum of 2 sandpiles
- * @grid1: grid 2
- * @grid2: grid 2
- */
-void sandpiles_sum(int grid1[3][3], int grid2[3][3])
-{
-	add_grids(grid1, grid2);
-	if (!is_stable(grid1))
-		alt_print_grid(grid1);
-	while (!is_stable(grid1))
-	{
-		topple(grid1);
-		if (!is_stable(grid1))
-			alt_print_grid(grid1);
-	}
-}
+  * copy - copy of two sandpiles
+  * @scr: 2D array
+  * @des: 2D array
+  */
 
-/**
- * is_stable - check if cell biger then 3
- * @grid1:grid1
- * Return: return 1
- */
-int is_stable(int grid1[3][3])
+void copy(int scr[3][3], int des[3][3])
 {
 	int i, j;
 
@@ -54,7 +35,26 @@ int is_stable(int grid1[3][3])
 	{
 		for (j = 0; j < 3; j++)
 		{
-			if (grid1[i][j] > 3)
+			des[i][j] = scr[i][j];
+		}
+	}
+}
+
+/**
+  * verif - test
+  * @grid: 2D array
+  * Return: 0
+  */
+
+int verif(int grid[3][3])
+{
+	int i, j;
+
+	for (i = 0; i < 3; i++)
+	{
+		for (j = 0; j < 3; j++)
+		{
+			if (grid[i][j] > 3)
 				return (0);
 		}
 	}
@@ -62,59 +62,48 @@ int is_stable(int grid1[3][3])
 }
 
 /**
- * add_grids - adds grids
- * @grid1: grid1
- * @grid2: grid2
- */
-void add_grids(int grid1[3][3], int grid2[3][3])
+  * sandpiles_sum - function that computes the sum of two sandpiles
+  * @grid1: 2D array
+  * @grid2: 2D array
+  */
+void sandpiles_sum(int grid1[3][3], int grid2[3][3])
 {
-	int i, j;
+	int x;
+	int y;
+	int referenceGrid[3][3];
+	int type = 0;
 
-	for (i = 0; i < 3; i++)
+	for (x = 0; x < 3; x++)
+		for (y = 0; y < 3; y++)
+			grid1[x][y] = grid1[x][y] + grid2[x][y];
+	type = verif(grid1);
+	if (type == 1)
+		return;
+	printf("=\n");
+	print_grid(grid1);
+	while (type == 0)
 	{
-		for (j = 0; j < 3; j++)
-			grid1[i][j] = grid1[i][j] + grid2[i][j];
-	}
-}
-
-/**
- * topple - remove cell
- * @grid1: grid
- */
-void topple(int grid1[3][3])
-{
-	int grains[3][3];
-	int i, j;
-
-	for (i = 0; i < 3; i++)
-	{
-		for (j = 0; j < 3; j++)
-		{
-			grains[i][j] = 0;
-		}
-	}
-
-	for (i = 0; i < 3; i++)
-	{
-		for (j = 0; j < 3; j++)
-		{
-			if (grid1[i][j] > 3)
+		copy(grid1, referenceGrid);
+		for (x = 0; x < 3; x++)
+			for (y = 0; y < 3; y++)
 			{
-
-				if ((i - 1 >= 0) && (i - 1 < 3))
-					grains[i - 1][j]++;
-
-				if ((i + 1 >= 0) && (i + 1 < 3))
-					grains[i + 1][j]++;
-
-				if ((j - 1 >= 0) && (j - 1 < 3))
-					grains[i][j - 1]++;
-
-				if ((j + 1 >= 0) && (j + 1 < 3))
-					grains[i][j + 1]++;
-				grid1[i][j] -= 4;
+				if (referenceGrid[x][y] > 3)
+				{
+					grid1[x][y] = grid1[x][y] - 4;
+					if (x - 1 >= 0)
+						grid1[x - 1][y] += 1;
+					if (x + 1 <= 2)
+						grid1[x + 1][y] += 1;
+					if (y - 1 >= 0)
+						grid1[x][y - 1] += 1;
+					if (y + 1 <= 2)
+						grid1[x][y + 1] += 1;
+				}
 			}
-		}
+		type = verif(grid1);
+		if (type == 1)
+			break;
+		printf("=\n");
+		print_grid(grid1);
 	}
-	add_grids(grid1, grains);
 }
