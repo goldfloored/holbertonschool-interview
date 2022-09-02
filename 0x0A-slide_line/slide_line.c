@@ -1,95 +1,85 @@
 #include "slide_line.h"
 
 /**
- * swap - swaps two integers
- * @xp: pointer to an int
- * @yp: pointer to an int
- */
-void swap(int *xp, int *yp)
-{
-	int temp = *xp;
-	*xp = *yp;
-	*yp = temp;
-}
-
-/**
- * slide_left - slides an array of integers to the left,
- * skipping all the zeros in between.
- * @line: pointer to an array of integers.
- * @size: size of line array
- */
-void slide_left(int *line, size_t size)
-{
-	size_t i, p = 0;
-
-	for (i = 0; i < size && p < size; i++)
-	{
-		while (line[p] == 0 && p < size && p + 1 < size)
-			p++;
-		if (line[i] == 0)
-			swap(&line[p], &line[i]);
-		p++;
-
-	}
-}
-/**
- * slide_righ - slides an array of integers to the right,
- * skipping all the zeros in between.
- * @line: pointer to an array of integers.
- * @size: size of line array
- */
-void slide_right(int *line, size_t size)
-{
-	size_t i, p = size - 1;
-
-	for (i = size - 1; (int)i >= 0 && (int)p >= 0; i--)
-	{
-		while (line[p] == 0 && (int)p > 0)
-			p--;
-		if (line[i] == 0)
-			swap(&line[p], &line[i]);
-		p--;
-
-	}
-
-}
-/**
- * slide_line - slides and merges an array of integers
- * @line: points to an array of integers
- * @size: number of elements of array
- * @direction: SLIDE_LEFT, SLIDE_RIGHT
- * Return: 1 upon success, or 0 upon failure.
- */
+*slide_line - a function that slides and merges an array of integers
+*@line: points to an array of integers containing size elements
+*@size: elements of array
+*@direction: direction can be either: SLIDE_LEFT, SLIDE_RIGHT
+*Return: 1 upon success, or 0 upon failure
+*/
 int slide_line(int *line, size_t size, int direction)
 {
-	size_t i = 0;
+	if (direction != 0 && direction != 1)
+		return (0);
+	if (line == NULL || size < 1)
+		return (0);
+	if (direction == 0)
+		direction_left(line, size);
+	if (direction == 1)
+		direction_right(line, size);
+	return (1);
+}
 
-	if (direction == SLIDE_LEFT)
+/**
+ * direction_left - slides a line to the left
+ * @line: input array
+ * @size: size of array
+ */
+void direction_left(int *line, size_t size)
+{
+	int i = 0, j, prev = 0, tmp;
+
+	for (j = 0; j < (int)size; j++)
 	{
-		slide_left(line, size);
-		for (i = 0; i < size; i++)
+		tmp = line[j];
+		if (!tmp)
+			continue;
+		if (!prev)
+			prev = tmp;
+		else if (prev == tmp)
 		{
-			if (line[i] == line[i + 1])
-			{
-				line[i] = line[i] + line[i + 1];
-				line[i + 1] = 0;
-			}
-		}
-		slide_left(line, size);
-		return (1);
-	} else if (direction == SLIDE_RIGHT)
-	{
-		slide_right(line, size);
-		for (i = size - 1; (int) i >= 0; i--)
+			line[i++] = tmp << 1;
+			prev = 0;
+		} else
 		{
-			if (line[i] == line[i - 1])
-			{
-				line[i] = line[i] + line[i - 1];
-				line[i - 1] = 0;
-			}
+			line[i++] = prev;
+			prev = tmp;
 		}
-		slide_right(line, size);
-		return (1);
 	}
-	return (0);
+	if (prev)
+		line[i++] = prev;
+	while (i < (int)size)
+		line[i++] = 0;
+}
+
+/**
+ * direction_right - slides a line to the right
+ * @line: input array
+ * @size: size of array
+ */
+void direction_right(int *line, size_t size)
+{
+	int prev = 0, i = size - 1, j, tmp;
+
+	for (j = size - 1; j >= 0; j--)
+	{
+		tmp = line[j];
+		if (!tmp)
+			continue;
+		if (!prev)
+			prev = tmp;
+		else if (prev == tmp)
+		{
+			line[i--] = tmp << 1;
+			prev = 0;
+		} else
+		{
+			line[i--] = prev;
+			prev = tmp;
+		}
+	}
+	if (prev)
+		line[i--] = prev;
+	while (i >= 0)
+		line[i--] = 0;
 }
