@@ -71,3 +71,4 @@ def state_to_string(state):
 
 for solution in solveNQueens(n):
     print(solution)
+    
