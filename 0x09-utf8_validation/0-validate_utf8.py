@@ -1,29 +1,39 @@
 #!/usr/bin/python3
-"""
-validate UTF-8 encoding
-"""
+# this module prints useful log info every 10 lines received from stdin
 
+if __name__ == "__main__":
+    from sys import stdin
+    status_codes = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404:
+                    0, 405: 0, 500: 0}
+    file_size, count = 0, 0
 
-def validUTF8(data):
-    """
-    :type data: List[int]
-    :rtype: bool
-    """
-    total_bytes = 0
-    first_mask = 1 << 7
-    second_mask = 1 << 6
-    for i in data:
-        another_mask = 1 << 7
-        if total_bytes == 0:
-            while another_mask & i:
-                total_bytes += 1
-                another_mask = another_mask >> 1
-            if total_bytes == 0:
-                continue
-            if total_bytes == 1 or total_bytes > 4:
-                return False
-        else:
-            if not (i & first_mask and not (i & second_mask)):
-                return False
-        total_bytes -= 1
-    return total_bytes == 0
+    def print_data(status_codes, file_size):
+        ''' print file size and status codes '''
+        print("File size: {}".format(file_size))
+        for k in sorted(status_codes.keys()):
+            if status_codes[k] > 0:
+                print("{}: {}".format(k, status_codes[k]))
+    try:
+        for line in stdin:
+            try:
+                data = line.split()
+                status_code = int(data[-2])
+
+                if status_code in status_codes:
+                    status_codes[status_code] += 1
+            except BaseException:
+                pass
+            try:
+                file_size += int(data[-1])
+            except BaseException:
+                pass
+
+            count += 1
+            if count % 10 == 0:
+                print_data(status_codes, file_size)
+
+    except KeyboardInterrupt:
+        print_data(status_codes, file_size)
+        raise
+
+    print_data(status_codes, file_size)
