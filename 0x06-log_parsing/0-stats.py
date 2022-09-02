@@ -1,38 +1,37 @@
 #!/usr/bin/python3
-""" Module for parsing logs """
-""" Log parsing """
+'''log parser algorithm'''
+
+
 import sys
 
 
-def check_readme_format(line):
-    """
-    Checks for correct format
-    """
-    if "GET /projects/260 HTTP/1.1" in line:
-        return(0)
-    else:
-        return(1)
-i = 0
-FileSize = 0
-STATUS = {'200': 0, '301': 0,
-          '400': 0, '401': 0,
-          '403': 0, '404': 0,
-          '405': 0, '500': 0}
+mydict = {
+    "200": 0,
+    "301": 0,
+    "400": 0,
+    "401": 0,
+    "403": 0,
+    "404": 0,
+    "405": 0,
+    "500": 0}
+file_size = 0
 try:
-    for line in sys.stdin:
-        i += 1
-        sp = line.split(' ')
-        if len(sp) > 2:
-            FileSize += int(sp[-1])
-            if sp[-2] in STATUS:
-                STATUS[sp[-2]] += 1
-        if i % 10 == 0:
-            print("File size: {}".format(FileSize))
-            for key, value in sorted(STATUS.items()):
-                if value != 0:
-                    print("{}: {}".format(key, value))
+    for n, line in enumerate(sys.stdin, 1):
+        _line = line.split()
+        if len(_line) > 2:
+            status_code = _line[len(_line) - 2]
+            file_size += int(_line[len(_line) - 1])
+            if status_code in mydict:
+                mydict[str(status_code)] += 1
+        if n % 10 == 0:
+            print("File size: {}".format(file_size))
+            for k in sorted(mydict):
+                if mydict[k] > 0:
+                    print("{}: {}".format(k, mydict[k]))
+except KeyboardInterrupt:
+    pass
 finally:
-    print("File size: {}".format(FileSize))
-    for key, value in sorted(STATUS.items()):
-            if value != 0:
-                print("{}: {:d}".format(key, value))
+    print('File size: {}'.format(file_size))
+    for k in sorted(mydict):
+        if mydict[k] > 0:
+            print("{}: {}".format(k, mydict[k]))

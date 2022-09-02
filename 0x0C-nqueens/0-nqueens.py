@@ -1,44 +1,73 @@
 #!/usr/bin/python3
 """
-famous nqueens problem
+The N queens
 """
-from sys import argv, exit
 
 
-def attack(board, row, column):
-    """ check not attacking """
-    for col in range(column):
-        if abs(board[col] - row) is abs(col - column) or board[col] is row:
-            return True
-    return False
+import sys
+
+if len(sys.argv) != 2:
+    print("Usage: nqueens N")
+    exit(1)
+try:
+    int(sys.argv[1])
+except Exception:
+    print("N must be a number")
+    exit(1)
+if int(sys.argv[1]) < 4:
+    print("N must be at least 4")
+    exit(1)
+if not isinstance(int(sys.argv[1]), int):
+    print("N must be a number")
+    exit(1)
+
+n = int(sys.argv[1])
 
 
-def make_board(board, column):
-    """ place queen """
-    board_len = len(board)
-    if column is board_len:
-        print(str([[col, board[col]] for col in range(board_len)]))
+def is_valid_state(state, n):
+    return len(state) == n
+
+
+def get_candidates(state, n):
+    if not state:
+        return range(n)
+
+    position = len(state)
+    candidates = set(range(n))
+    for row, col in enumerate(state):
+        candidates.discard(col)
+        dist = position - row
+        candidates.discard(col + dist)
+        candidates.discard(col - dist)
+    return candidates
+
+
+def search(state, solutions, n):
+    if is_valid_state(state, n):
+        state_string = state_to_string(state)
+        solutions.append(state_string)
         return
-    for row in range(board_len):
-        if not attack(board, row, column):
-            board[column] = row
-            make_board(board, column + 1)
+
+    for candidate in get_candidates(state, n):
+        state.append(candidate)
+        search(state, solutions, n)
+        state.pop()
 
 
-if __name__ == "__main__":
-    """ main """
-    if len(argv) != 2:
-        print("Usage: nqueens N")
-        exit(1)
-    s = 0
-    try:
-        s = int(argv[1])
-    except Exception:
-        print("N must be a number")
-        exit(1)
-    if s < 4:
-        print("N must be at least 4")
-        exit(1)
-    board = [0 for x in range(s)]
-    make_board(board, 0)
-    
+def solveNQueens(n):
+    solutions = []
+    state = []
+    search(state, solutions, n)
+    return solutions
+
+
+def state_to_string(state):
+    res = []
+
+    for x, y in enumerate(state):
+        res.append([x, y])
+    return res
+
+
+for solution in solveNQueens(n):
+    print(solution)
