@@ -1,54 +1,43 @@
 #include "search.h"
-
 /**
- * helper_func - linear skip list
- * @value: value searching for
- * @prev: start node
- * @exp: end node
- * Return: Node with value for success, else None
- */
-skiplist_t *helper_func(int value, skiplist_t *prev, skiplist_t *exp)
-{
-	printf("Value found between indexes [%li] and [%li]\n",
-			prev->index, exp->index);
-	while (prev != exp->next)
-	{
-		printf("Value checked at index [%li] = [%i]\n",
-				prev->index, prev->n);
-		if (value == prev->n)
-			return (prev);
-		prev = prev->next;
-	}
-	return (NULL);
-}
-
-/**
- * linear_skip -  find value in sorted skip list
- * @list: list searched through
- * @value: value searched for
- * Return: node with value otherwise None
- */
+* linear_skip - Searches for a value in a sorted skip
+* list of integers.
+* @list: is a pointer to the head of the skip list to search in
+* @value: is the value to search for
+* Return: a pointer on the first node where value is located, otherwise NULL
+*/
 skiplist_t *linear_skip(skiplist_t *list, int value)
 {
-	skiplist_t *prev, *tmp;
+	skiplist_t *node;
 
 	if (!list)
 		return (NULL);
-	tmp = list;
-	while (tmp)
+
+	node = list->express;
+	printf("Value checked at index [%lu] = [%d]\n", node->index, node->n);
+
+	while (node && node->n < value)
 	{
-		prev = tmp;
-		if (tmp->express)
-			tmp = tmp->express;
-		else
+		list = node;
+		node = node->express;
+		if (!node)
 		{
-			while (tmp->next)
-				tmp = tmp->next;
+			node = list;
+			while (node->next)
+				node = node->next;
 			break;
 		}
-		printf("Value checked at index [%li] = [%i]\n", tmp->index, tmp->n);
-		if (value <= tmp->n)
-			return (helper_func(value, prev, tmp));
+		printf("Value checked at index [%lu] = [%d]\n",	node->index, node->n);
 	}
-	return (helper_func(value, prev, tmp));
+	printf("Value found between indexes [%lu] and [%lu]\n", list->index,
+			node->index);
+
+	for (; list && node->n >= list->n; list = list->next)
+	{
+		printf("Value checked at index [%lu] = [%d]\n", list->index, list->n);
+
+		if (list->n == value)
+			return (list);
+	}
+	return (NULL);
 }
